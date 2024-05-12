@@ -1,6 +1,6 @@
 # bootcamp0b10
 
-# Run naive RSA example
+# Run Naive RSA digital signature example
 ```sh
 cargo run --release
 ```

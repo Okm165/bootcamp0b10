@@ -1,34 +1,45 @@
-pub mod math;
+pub mod alg;
 
-use lambdaworks_math::unsigned_integer::element::UnsignedInteger;
-use math::{extended_euclidean_algorithm, square_and_multiply};
+use blake2::{Blake2s256, Digest};
+use lambdaworks_math::{traits::ByteConversion, unsigned_integer::element::UnsignedInteger};
+use alg::{extended_euclidean_algorithm, square_and_multiply};
 
 const LIMBS: usize = 32;
 pub type U2048 = UnsignedInteger<LIMBS>;
 
 fn main() {
-    let p = 1225469249_i128;
-    let q = 2494616653_i128;
+    let one = U2048::from_u64(1);
+    let p = U2048::from_dec_str("66799244443633250852231052109898944437188837306401226063243032174510163111953631").unwrap();
+    let q = U2048::from_dec_str("85186604308917486989416657678917289862431384862416026386459825330635389014928221").unwrap();
 
-    let n = UnsignedInteger::from_u128((p * q) as u128);
-    let phi_n = (p - 1) * (q - 1);
+    let n = p * q;
+    let phi_n = (p - one) * (q - one);
 
-    let e = 65537_i128;
-    let (_, s, _) = extended_euclidean_algorithm(e, phi_n);
+    let public_key = U2048::from_u128(65537);
+    let (_, private_key, _) = extended_euclidean_algorithm(public_key, phi_n);
 
-    let s = if s < 0 { phi_n + s } else { s };
+    // assert private_key = public_key ^ (-1) mod phi_n
+    let (_, rem) = (private_key * public_key).div_rem(&phi_n);
+    assert!(rem == one);
 
-    assert!((s * e) % phi_n == 1);
+    let msg = "Ala ma kota.".to_string();
+    println!("Original msg: {msg}");
 
-    let msg = UnsignedInteger::from_hex("98081038093").unwrap();
-    println!("origina;: {msg}");
+    let mut hasher = Blake2s256::new();
+    hasher.update(msg.as_bytes());
+    let mut hash = hasher.finalize().to_vec();
+    hash.resize(LIMBS * 8, 0);
 
-    let encrypted = square_and_multiply(msg, UnsignedInteger::from_u128(e as u128), &n);
-    println!("encrypted: {encrypted}");
+    let msg_hash = UnsignedInteger::from_bytes_le(&hash).unwrap();
+    println!("Original msg hash: {msg_hash}");
 
-    let (_, decrypted) =
-        square_and_multiply(encrypted, UnsignedInteger::from_u128(s as u128), &n).div_rem(&n);
-    println!("decrypted: {decrypted}");
+    let encrypted = square_and_multiply(msg_hash, private_key, &n);
+    println!("Signature: {encrypted}");
 
-    assert!(decrypted == msg)
+    // ----- SEND via unsafe channel
+
+    let decrypted = square_and_multiply(encrypted, public_key, &n);
+    println!("Decrypted msg hash: {decrypted}");
+
+    println!("Signature correct: {}", decrypted == msg_hash)
 }
