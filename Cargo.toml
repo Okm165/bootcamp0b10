@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "week1/fields",
+    "week1/naive_rsa",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+blake2 = "0.10.6"
+lambdaworks-math = { git = "https://github.com/lambdaclass/lambdaworks.git" }

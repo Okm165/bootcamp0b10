@@ -1,16 +1,22 @@
 pub mod alg;
 
+use alg::{extended_euclidean_algorithm, square_and_multiply};
 use blake2::{Blake2s256, Digest};
 use lambdaworks_math::{traits::ByteConversion, unsigned_integer::element::UnsignedInteger};
-use alg::{extended_euclidean_algorithm, square_and_multiply};
 
 const LIMBS: usize = 32;
 pub type U2048 = UnsignedInteger<LIMBS>;
 
 fn main() {
     let one = U2048::from_u64(1);
-    let p = U2048::from_dec_str("66799244443633250852231052109898944437188837306401226063243032174510163111953631").unwrap();
-    let q = U2048::from_dec_str("85186604308917486989416657678917289862431384862416026386459825330635389014928221").unwrap();
+    let p = U2048::from_dec_str(
+        "66799244443633250852231052109898944437188837306401226063243032174510163111953631",
+    )
+    .unwrap();
+    let q = U2048::from_dec_str(
+        "85186604308917486989416657678917289862431384862416026386459825330635389014928221",
+    )
+    .unwrap();
 
     let n = p * q;
     let phi_n = (p - one) * (q - one);

@@ -9,7 +9,7 @@ fn main() {
         FieldElement::<Mersenne31Field>::from(&10_u32),
     ];
 
-    let b: <Mersenne31Complex as IsField>::BaseType = [
+    let _b: <Mersenne31Complex as IsField>::BaseType = [
         FieldElement::<Mersenne31Field>::from(&70_u32),
         FieldElement::<Mersenne31Field>::from(&20_u32),
     ];
