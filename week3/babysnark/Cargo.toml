@@ -1,0 +1,9 @@
+[package]
+name = "babysnark"
+version.workspace = true
+edition.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+baby-snark = { git = "https://github.com/lambdaclass/lambdaworks.git" }

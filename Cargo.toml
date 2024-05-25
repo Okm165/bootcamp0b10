@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "week1/fields",
-    "week1/naive_rsa", "week3/shamir",
+    "week1/naive_rsa", "week3/babysnark", "week3/shamir",
 ]
 
 [workspace.package]
