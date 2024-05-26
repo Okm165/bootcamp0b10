@@ -19,5 +19,5 @@ print(f"64nd root of unity omega: {hex(omega)}")
 assert pow(omega, 64, r) == 1
 print("Verification passed: omega^64 == 1 mod r")
 
-for i in range(0, 65):
+for i in range(1, 64):
     print(hex(pow(omega, i, r)))

@@ -119,7 +119,6 @@ fn main() {
 
 fn find_s(g: &G1Point, srs: &StructuredReferenceString<G1Point, G2Point>) -> Option<FrElement> {
     let s_strings = vec![
-        "0x1",
         "0x45af6345ec055e4d14a1e27164d8fdbd2d967f4be2f951558140d032f0a9ee53",
         "0x50e0903a157988bab4bcd40e22f55448bf6e88fb4c38fb8a360c60997369df4e",
         "0x53c78adc7bff16bae3ee1645113940cf46c3ebf43c92a949a4593e1acca2cb6c",
