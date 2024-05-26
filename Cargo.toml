@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "week1/fields",
-    "week1/naive_rsa", "week3/babysnark", "week3/shamir",
+    "week1/naive_rsa", "week3/babysnark", "week3/kzg_challenge", "week3/shamir",
 ]
 
 [workspace.package]
@@ -12,4 +12,5 @@ edition = "2021"
 [workspace.dependencies]
 blake2 = "0.10.6"
 lambdaworks-math = { git = "https://github.com/lambdaclass/lambdaworks.git" }
+lambdaworks-crypto = { git = "https://github.com/lambdaclass/lambdaworks.git" }
 rand = "0.8.5"
