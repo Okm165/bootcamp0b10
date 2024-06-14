@@ -2,7 +2,10 @@ use lambdaworks_math::{
     field::{
         element::FieldElement,
         fields::montgomery_backed_prime_fields::{IsModulus, MontgomeryBackendPrimeField},
-    }, polynomial::Polynomial, traits::ByteConversion, unsigned_integer::element::UnsignedInteger
+    },
+    polynomial::Polynomial,
+    traits::ByteConversion,
+    unsigned_integer::element::UnsignedInteger,
 };
 
 const LIBMS: usize = 4;
@@ -29,18 +32,13 @@ fn main() {
         &[secret.clone()]
             .into_iter()
             .chain(
-                (0..poly_degree)
-                    .into_iter()
-                    .map(|_| FE::from_bytes_be(&rand::random::<[u8; 32]>()).unwrap()),
+                (0..poly_degree).map(|_| FE::from_bytes_be(&rand::random::<[u8; 32]>()).unwrap()),
             )
             .collect::<Vec<FE>>(),
     );
     assert_eq!(poly_degree, poly.degree());
 
-    let shares_xs: Vec<FE> = (1..=shares)
-        .into_iter()
-        .map(|f| FE::from(f as u64))
-        .collect();
+    let shares_xs: Vec<FE> = (1..=shares).map(|f| FE::from(f as u64)).collect();
     let shares_ys: Vec<FE> = shares_xs.iter().map(|f| poly.evaluate(f)).collect();
 
     // interpolate based on given shares
@@ -52,6 +50,9 @@ fn main() {
 
     // evaluate poly at p(0)
     let derived_secret = interpolated_poly.evaluate(&FE::zero());
-    println!("derived_secret: {}", derived_secret.representative().to_hex());
+    println!(
+        "derived_secret: {}",
+        derived_secret.representative().to_hex()
+    );
     assert_eq!(secret, derived_secret)
 }
