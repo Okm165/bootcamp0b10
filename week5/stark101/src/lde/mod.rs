@@ -23,7 +23,8 @@ where
 
 pub fn lde<F: IsField + IsFFTField>(
     poly: Polynomial<FieldElement<F>>,
+    domain_size: usize,
 ) -> Result<Vec<FieldElement<F>>, FFTError> {
     let scaled = poly.scale(&FieldElement::<F>::from(3));
-    Polynomial::evaluate_fft::<F>(&scaled, 1, Some(32))
+    Polynomial::evaluate_fft::<F>(&scaled, 1, Some(domain_size))
 }
