@@ -17,7 +17,7 @@ const TRACE_LENGTH: usize = 32;
 fn main() {
     let offset = FieldElement::<Stark252PrimeField>::from(3);
     let trace = fibonacci_trace::<Stark252PrimeField>(TRACE_LENGTH);
-    
+
     let trace_poly =
         Polynomial::interpolate_fft::<Stark252PrimeField>(&trace).unwrap();
 
@@ -39,4 +39,6 @@ fn main() {
     let interpolated_poly =
         Polynomial::interpolate_fft::<Stark252PrimeField>(&composition_poly_evals).unwrap();
     println!("{}", interpolated_poly.degree())
+
+    
 }
