@@ -1,20 +1,42 @@
+pub mod constraints;
 pub mod lde;
 pub mod trace;
+
+use constraints::eval_composition_polynomial;
 use lambdaworks_math::{
     field::{
         element::FieldElement, fields::fft_friendly::stark_252_prime_field::Stark252PrimeField,
+        traits::IsFFTField,
     },
     polynomial::Polynomial,
 };
-use lde::{commit, lde};
 use trace::fibonacci_trace;
 
+const TRACE_LENGTH: usize = 32;
+
 fn main() {
-    let poly: Polynomial<FieldElement<Stark252PrimeField>> = Polynomial::new(&fibonacci_trace(10));
+    let offset = FieldElement::<Stark252PrimeField>::from(3);
+    let trace = fibonacci_trace::<Stark252PrimeField>(TRACE_LENGTH);
+    
+    let trace_poly =
+        Polynomial::interpolate_fft::<Stark252PrimeField>(&trace).unwrap();
 
-    let low_degree_extension = lde(poly, 64).unwrap();
-    // println!("{:?}", low_degree_extension.iter().map(|f| f.representative().to_hex()).collect::<Vec<String>>());
+    let trace_poly_generator = Stark252PrimeField::get_primitive_root_of_unity(5).unwrap();
+    let lde_poly_generator = Stark252PrimeField::get_primitive_root_of_unity(10).unwrap();
 
-    let commitment = commit(low_degree_extension);
-    println!("{:?}", hex::encode(commitment.root.as_slice()));
+    let (_, composition_poly_evals) = (0..1024).fold(
+        (offset, Vec::<FieldElement<Stark252PrimeField>>::new()),
+        |(eval_point, mut evals), _| {
+            evals.push(eval_composition_polynomial(
+                &trace_poly,
+                &eval_point,
+                &trace_poly_generator,
+            ));
+            (eval_point * lde_poly_generator, evals)
+        },
+    );
+
+    let interpolated_poly =
+        Polynomial::interpolate_fft::<Stark252PrimeField>(&composition_poly_evals).unwrap();
+    println!("{}", interpolated_poly.degree())
 }
