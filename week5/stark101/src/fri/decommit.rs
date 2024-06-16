@@ -36,6 +36,7 @@ pub fn layers_decommit<F>(
 
     let curr_layer = &layers[0];
 
+    println!("decommiting layer size: {}", curr_layer.domain_size);
     for (n, query) in queries.iter().enumerate() {
         let index = query % curr_layer.domain_size;
         let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;
@@ -68,6 +69,7 @@ pub fn layers_decommit<F>(
 
     for (i, beta) in betas.iter().enumerate().skip(1) {
         let curr_layer = &layers[i];
+        println!("decommiting layer size: {}", curr_layer.domain_size);
         for (n, query) in queries.iter().enumerate() {
             let index = query % curr_layer.domain_size;
             let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;

@@ -46,16 +46,18 @@ fn main() {
         interpolated_cp.degree()
     );
 
-    // randomly selected by  verifier
+    // randomly selected by verifier
     let betas: Vec<FieldElement<Stark252PrimeField>> = vec![
         FieldElement::from(100),
         FieldElement::from(881),
         FieldElement::from(331),
         FieldElement::from(912),
     ];
+    println!("folding betas: {:?}", betas.iter().map(|b| b.representative().to_hex()).collect::<Vec<String>>());
 
     // randomly selected by verifier
     let queries: Vec<usize> = vec![3892, 1828, 122];
+    println!("fri queries: {:?}", queries);
 
     let (layers, last_layer_poly) = commit(
         &betas,
