@@ -1,10 +1,10 @@
+pub mod constraints;
 pub mod fri;
 pub mod lde;
 pub mod trace;
-pub mod constraints;
 
 use constraints::eval_composition_polynomial;
-use fri::{commit::commit, decommit::{fri_butterfly, layers_decommit}};
+use fri::{commit::commit, decommit::layers_decommit};
 use lambdaworks_math::{
     field::{
         element::FieldElement, fields::fft_friendly::stark_252_prime_field::Stark252PrimeField,
@@ -24,8 +24,8 @@ fn main() {
 
     let trace = fibonacci_trace::<Stark252PrimeField>(TRACE_LENGTH);
 
-    let trace_poly =
-        Polynomial::interpolate_fft::<Stark252PrimeField>(&trace).unwrap();
+    let trace_poly = Polynomial::interpolate_fft::<Stark252PrimeField>(&trace).unwrap();
+    println!("trace_poly degree: {}", trace_poly.degree());
 
     let (_, composition_poly_evals) = (0..DOMAIN_SIZE).fold(
         (offset, Vec::<FieldElement<Stark252PrimeField>>::new()),
@@ -41,13 +41,33 @@ fn main() {
 
     let interpolated_cp =
         Polynomial::interpolate_fft::<Stark252PrimeField>(&composition_poly_evals).unwrap();
-    println!("{}", interpolated_cp.degree());
+    println!(
+        "composition polynomial degree: {}",
+        interpolated_cp.degree()
+    );
 
-    let betas: Vec<FieldElement<Stark252PrimeField>> = vec![FieldElement::from(9), FieldElement::from(12), FieldElement::from(331)];
+    // randomly selected by  verifier
+    let betas: Vec<FieldElement<Stark252PrimeField>> = vec![
+        FieldElement::from(100),
+        FieldElement::from(881),
+        FieldElement::from(331),
+        FieldElement::from(912),
+    ];
 
-    let layers = commit(&betas, &interpolated_cp, &lde_poly_generator, &DOMAIN_SIZE, offset);
+    // randomly selected by verifier
+    let queries: Vec<usize> = vec![3892, 1828, 122];
 
-    let idx = 3892_usize;
+    let (layers, last_layer_poly) = commit(
+        &betas,
+        &interpolated_cp,
+        &lde_poly_generator,
+        &DOMAIN_SIZE,
+        offset,
+        &queries,
+    );
 
-    layers_decommit(&layers, &betas, idx, lde_poly_generator, offset);
+    layers_decommit(&layers, &betas, &queries, lde_poly_generator, offset);
+    assert!(last_layer_poly.degree() <= trace_poly.degree() / 2_usize.pow(betas.len() as u32));
+
+    println!("proof correct");
 }

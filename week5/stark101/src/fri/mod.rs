@@ -22,7 +22,7 @@ where
 {
     let coef = poly.coefficients();
     let even_coef: Vec<FieldElement<F>> = coef.iter().step_by(2).cloned().collect();
-    
+
     let odd_coef_mul_beta: Vec<FieldElement<F>> = coef
         .iter()
         .skip(1)

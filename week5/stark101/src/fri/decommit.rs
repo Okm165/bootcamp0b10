@@ -1,11 +1,13 @@
-use lambdaworks_crypto::merkle_tree::{backends::types::Keccak256Backend, merkle::MerkleTree};
+use lambdaworks_crypto::merkle_tree::backends::types::Keccak256Backend;
 use lambdaworks_math::{
     field::{
         element::FieldElement,
-        traits::{IsField, IsPrimeField},
+        traits::{IsFFTField, IsField, IsPrimeField},
     },
     traits::AsBytes,
 };
+
+use super::commit::LayerCommitment;
 
 pub fn fri_butterfly<F: IsField>(
     f_x: &FieldElement<F>,
@@ -21,26 +23,73 @@ pub fn fri_butterfly<F: IsField>(
 }
 
 pub fn layers_decommit<F>(
-    layers: &[(MerkleTree<Keccak256Backend<F>>, Vec<FieldElement<F>>)],
+    layers: &[LayerCommitment<F>],
     betas: &[FieldElement<F>],
-    x_idx: usize,
+    queries: &[usize],
     mut root_of_unity: FieldElement<F>,
     mut offset: FieldElement<F>,
-) -> ()
-where
-    F: IsField + IsPrimeField,
+) where
+    F: IsField + IsFFTField + IsPrimeField,
     FieldElement<F>: AsBytes + Sync + Send,
 {
-    for (i, (merkle, evals)) in layers.into_iter().take(layers.len()-1).enumerate() {
-        let x_idx = x_idx % evals.len();
-        let neg_x_idx = (x_idx + evals.len() / 2) % evals.len();
-        let x = root_of_unity.pow(x_idx) * offset.to_owned();
-        let f_x = &evals[x_idx];
-        let f_neg_x = &evals[neg_x_idx];
-        let f_x2 = fri_butterfly(&f_x, &f_neg_x, &x, &betas[i]);
+    let mut next_layer_evals: Vec<FieldElement<F>> = vec![FieldElement::zero(); queries.len()];
 
-        assert!(f_x2 == layers[i+1].1[x_idx % layers[i+1].1.len()]);
-        println!("{:?}", layers[i+1].1.iter().find(|a| **a == f_x2));
+    let curr_layer = &layers[0];
+
+    for (n, query) in queries.iter().enumerate() {
+        let index = query % curr_layer.domain_size;
+        let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;
+        let eval_point = root_of_unity.pow(index) * offset.to_owned();
+        assert!(
+            curr_layer.x_inclusion_proof[n].verify::<Keccak256Backend<F>>(
+                &curr_layer.merkle_root,
+                index,
+                &curr_layer.x[n]
+            )
+        );
+        assert!(
+            curr_layer.x_neg_inclusion_proof[n].verify::<Keccak256Backend<F>>(
+                &curr_layer.merkle_root,
+                neg_index,
+                &curr_layer.x_neg[n]
+            )
+        );
+        let f_x2 = fri_butterfly(
+            &curr_layer.x[n],
+            &curr_layer.x_neg[n],
+            &eval_point,
+            &betas[0],
+        );
+        next_layer_evals[n] = f_x2;
+    }
+
+    root_of_unity = root_of_unity.square();
+    offset = offset.square();
+
+    for (i, beta) in betas.iter().enumerate().skip(1) {
+        let curr_layer = &layers[i];
+        for (n, query) in queries.iter().enumerate() {
+            let index = query % curr_layer.domain_size;
+            let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;
+            let eval_point = root_of_unity.pow(index) * offset.to_owned();
+            assert_eq!(next_layer_evals[n], curr_layer.x[n]);
+            assert!(
+                curr_layer.x_inclusion_proof[n].verify::<Keccak256Backend<F>>(
+                    &curr_layer.merkle_root,
+                    index,
+                    &curr_layer.x[n]
+                )
+            );
+            assert!(
+                curr_layer.x_neg_inclusion_proof[n].verify::<Keccak256Backend<F>>(
+                    &curr_layer.merkle_root,
+                    neg_index,
+                    &curr_layer.x_neg[n]
+                )
+            );
+            let f_x2 = fri_butterfly(&curr_layer.x[n], &curr_layer.x_neg[n], &eval_point, beta);
+            next_layer_evals[n] = f_x2;
+        }
 
         root_of_unity = root_of_unity.square();
         offset = offset.square();
