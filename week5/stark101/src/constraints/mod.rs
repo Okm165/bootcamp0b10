@@ -11,13 +11,14 @@ use crate::TRACE_LENGTH;
 pub fn eval_composition_polynomial<F>(
     trace_poly: &Polynomial<FieldElement<F>>,
     evaluation_point: &FieldElement<F>,
+    alphas: &[FieldElement<F>],
     root_of_unity: &FieldElement<F>,
 ) -> FieldElement<F>
 where
     F: IsField + IsFFTField,
 {
-    eval_boundary_constraints(trace_poly, evaluation_point, root_of_unity)
-        + eval_transition_constraints(trace_poly, evaluation_point, root_of_unity)
+    eval_boundary_constraints(trace_poly, evaluation_point, root_of_unity) * &alphas[0]
+        + eval_transition_constraints(trace_poly, evaluation_point, root_of_unity) * &alphas[1]
 }
 
 pub fn eval_selector_polynomial<F>(

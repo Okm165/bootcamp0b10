@@ -27,12 +27,15 @@ fn main() {
     let trace_poly = Polynomial::interpolate_fft::<Stark252PrimeField>(&trace).unwrap();
     println!("trace_poly degree: {}", trace_poly.degree());
 
+    let alphas = vec![FieldElement::from(238), FieldElement::from(912)];
+
     let (_, composition_poly_evals) = (0..DOMAIN_SIZE).fold(
         (offset, Vec::<FieldElement<Stark252PrimeField>>::new()),
         |(eval_point, mut evals), _| {
             evals.push(eval_composition_polynomial(
                 &trace_poly,
                 &eval_point,
+                &alphas,
                 &trace_poly_generator,
             ));
             (eval_point * lde_poly_generator, evals)
@@ -67,7 +70,8 @@ fn main() {
         offset,
         &queries,
     );
-
+    
+    // TODO verifier receives f(x) f(gx) f(g*g*x) calculates cp(x) and check it is present in first layer of FRI
     layers_decommit(&layers, &betas, &queries, lde_poly_generator, offset);
     assert!(last_layer_poly.degree() <= trace_poly.degree() / 2_usize.pow(betas.len() as u32));
 
