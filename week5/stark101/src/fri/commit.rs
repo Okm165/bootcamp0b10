@@ -35,8 +35,7 @@ where
     let mut curr_domain_generator = domain_generator.clone();
     let mut curr_domain_size = *domain_size;
 
-    let evals = Polynomial::evaluate_fft::<F>(&curr_poly.scale(&offset), 1, Some(curr_domain_size))
-        .unwrap();
+    let evals = Polynomial::evaluate_fft::<F>(&curr_poly, 1, Some(curr_domain_size)).unwrap();
 
     let tree = MerkleTree::<Keccak256Backend<F>>::build(&evals);
     layers.push(LayerCommitment {
@@ -72,9 +71,7 @@ where
 
         offset = offset.square();
 
-        let evals =
-            Polynomial::evaluate_fft::<F>(&curr_poly.scale(&offset), 1, Some(curr_domain_size))
-                .unwrap();
+        let evals = Polynomial::evaluate_fft::<F>(&curr_poly, 1, Some(curr_domain_size)).unwrap();
 
         let tree = MerkleTree::<Keccak256Backend<F>>::build(&evals);
         layers.push(LayerCommitment {

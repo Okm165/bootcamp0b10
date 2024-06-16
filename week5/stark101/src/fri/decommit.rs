@@ -40,7 +40,7 @@ pub fn layers_decommit<F>(
     for (n, query) in queries.iter().enumerate() {
         let index = query % curr_layer.domain_size;
         let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;
-        let eval_point = root_of_unity.pow(index) * offset.to_owned();
+        let eval_point = root_of_unity.pow(index);
         assert!(
             curr_layer.x_inclusion_proof[n].verify::<Keccak256Backend<F>>(
                 &curr_layer.merkle_root,
@@ -65,7 +65,6 @@ pub fn layers_decommit<F>(
     }
 
     root_of_unity = root_of_unity.square();
-    offset = offset.square();
 
     for (i, beta) in betas.iter().enumerate().skip(1) {
         let curr_layer = &layers[i];
@@ -73,7 +72,7 @@ pub fn layers_decommit<F>(
         for (n, query) in queries.iter().enumerate() {
             let index = query % curr_layer.domain_size;
             let neg_index = (query + curr_layer.domain_size / 2) % curr_layer.domain_size;
-            let eval_point = root_of_unity.pow(index) * offset.to_owned();
+            let eval_point = root_of_unity.pow(index);
             assert_eq!(next_layer_evals[n], curr_layer.x[n]);
             assert!(
                 curr_layer.x_inclusion_proof[n].verify::<Keccak256Backend<F>>(
@@ -94,6 +93,5 @@ pub fn layers_decommit<F>(
         }
 
         root_of_unity = root_of_unity.square();
-        offset = offset.square();
     }
 }
