@@ -27,7 +27,6 @@ pub fn layers_decommit<F>(
     betas: &[FieldElement<F>],
     queries: &[usize],
     mut root_of_unity: FieldElement<F>,
-    mut offset: FieldElement<F>,
 ) where
     F: IsField + IsFFTField + IsPrimeField,
     FieldElement<F>: AsBytes + Sync + Send,

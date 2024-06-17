@@ -1,11 +1,10 @@
 pub mod constraints;
 pub mod fri;
-pub mod lde;
 pub mod trace;
 
 use constraints::eval_composition_polynomial;
 use fri::{commit::commit, decommit::layers_decommit};
-use lambdaworks_crypto::merkle_tree::{backends::types::Keccak256Backend, merkle::MerkleTree};
+use lambdaworks_crypto::merkle_tree::backends::types::Keccak256Backend;
 use lambdaworks_math::{
     field::{
         element::FieldElement, fields::fft_friendly::stark_252_prime_field::Stark252PrimeField,
@@ -90,7 +89,7 @@ fn main() {
     );
 
     // Verify FRI
-    layers_decommit(&layers, &betas, &queries, lde_poly_generator, offset);
+    layers_decommit(&layers, &betas, &queries, lde_poly_generator);
     assert!(last_layer_poly.degree() <= trace_poly.degree() / 2_usize.pow(betas.len() as u32));
 
     println!("proof correct");

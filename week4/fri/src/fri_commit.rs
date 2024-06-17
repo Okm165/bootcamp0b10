@@ -4,9 +4,9 @@ use lambdaworks_math::{
     polynomial::Polynomial,
 };
 
-pub fn commit(
-    betas: Vec<FieldElement<Babybear31PrimeField>>,
-    polynomial: Polynomial<FieldElement<Babybear31PrimeField>>,
+pub fn _commit(
+    _betas: Vec<FieldElement<Babybear31PrimeField>>,
+    _polynomial: Polynomial<FieldElement<Babybear31PrimeField>>,
 ) -> Vec<BatchedMerkleTree<Babybear31PrimeField>> {
     todo!()
 }

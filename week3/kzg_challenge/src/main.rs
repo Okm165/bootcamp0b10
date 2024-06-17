@@ -26,7 +26,7 @@ use lambdaworks_math::{
 type G1Point = ShortWeierstrassProjectivePoint<BLS12381Curve>;
 type G2Point = ShortWeierstrassProjectivePoint<BLS12381TwistCurve>;
 
-type KZG = KateZaveruchaGoldberg<MontgomeryBackendPrimeField<FrConfig, 4>, BLS12381AtePairing>;
+type Kzg = KateZaveruchaGoldberg<MontgomeryBackendPrimeField<FrConfig, 4>, BLS12381AtePairing>;
 pub type Fq = FieldElement<BLS12381PrimeField>;
 
 fn challenge_polynomial() -> Polynomial<FrElement> {
@@ -86,7 +86,7 @@ fn main() {
         srs.powers_secondary_group[1]
     );
 
-    let kzg = KZG::new(srs.clone());
+    let kzg = Kzg::new(srs.clone());
 
     let p = challenge_polynomial();
 

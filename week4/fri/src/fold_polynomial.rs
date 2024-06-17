@@ -3,7 +3,7 @@ use lambdaworks_math::{
     polynomial::{self, Polynomial},
 };
 
-pub fn fold_polynomial<F>(
+pub fn _fold_polynomial<F>(
     poly: &Polynomial<FieldElement<F>>,
     beta: &FieldElement<F>,
 ) -> Polynomial<FieldElement<F>>
